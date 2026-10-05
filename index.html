@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="SaranPro – ปรับภาพให้คม สว่าง และสีสดขึ้นได้ในเบราว์เซอร์">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="color-scheme" content="dark">
+  <title>SaranPro</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #181f29;
+      --panel2: #232c38;
+      --border: #3a4655;
+      --text: #f5f7fa;
+      --muted: #9da9b8;
+      --blue: #3188fa;
+      --purple: #8b5cf6;
+      --green: #18b96a;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, "Noto Sans Thai", sans-serif;
+    }
+
+    :root {
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    .app {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .control-panel {
+      display: flex;
+      flex-direction: column;
+      width: 310px;
+      min-width: 310px;
+      height: 100%;
+      padding: 18px;
+      background: linear-gradient(180deg, #1a222d, #11161d);
+      border-right: 1px solid var(--border);
+      overflow-y: auto;
+    }
+
+    .brand {
+      margin-bottom: 18px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 26px;
+      line-height: 1.15;
+    }
+
+    .brand h1 span {
+      color: #4596ff;
+    }
+
+    .brand p {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .section-title {
+      margin: 12px 0 9px;
+      color: #dce5ef;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    button {
+      border: 0;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(.98);
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .main-button {
+      width: 100%;
+      min-height: 54px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, #348bff, #1555be);
+      font-size: 15px;
+      box-shadow: 0 6px 18px rgba(30, 110, 240, .25);
+    }
+
+    .auto-button {
+      width: 100%;
+      min-height: 43px;
+      margin-top: 10px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #9b66ff, #5b21b6);
+      font-size: 13px;
+    }
+
+    .tools {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .04);
+    }
+
+    .tools-title {
+      margin-bottom: 10px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .slider-row {
+      display: block;
+      margin: 11px 0;
+      color: #cbd5e1;
+      font-size: 12px;
+    }
+
+    .slider-row span {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
+
+    .value {
+      color: #75adff;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+      cursor: pointer;
+    }
+
+    .status {
+      min-height: 37px;
+      margin-top: 12px;
+      padding: 9px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, .055);
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .download-button {
+      display: none;
+      width: 100%;
+      min-height: 58px;
+      margin-top: auto;
+      padding: 10px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #20c978, #07894c);
+      font-size: 14px;
+      line-height: 1.35;
+      box-shadow: 0 6px 17px rgba(20, 184, 102, .22);
+    }
+
+    .download-button.show {
+      display: block;
+    }
+
+    .preview-area {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      width: 100%;
+      height: 100%;
+      padding: 15px;
+      overflow: hidden;
+    }
+
+    .preview-box {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      min-height: 0;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #07090d;
+      overflow: hidden;
+    }
+
+    .preview-label {
+      position: absolute;
+      z-index: 2;
+      top: 12px;
+      left: 12px;
+      padding: 6px 11px;
+      border-radius: 20px;
+      background: rgba(0, 0, 0, .75);
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      pointer-events: none;
+    }
+
+    .image-area {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      padding: 9px;
+      cursor: pointer;
+    }
+
+    .image-area img,
+    .image-area canvas {
+      display: none;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 7px;
+    }
+
+    .image-area img.visible,
+    .image-area canvas.visible {
+      display: block;
+    }
+
+    .empty {
+      padding: 20px;
+      color: #687483;
+      font-size: 14px;
+      line-height: 1.65;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    @media (max-width: 850px) {
+      .control-panel {
+        width: 245px;
+        min-width: 245px;
+        padding: 13px;
+      }
+
+      .brand h1 {
+        font-size: 21px;
+      }
+
+      .main-button {
+        font-size: 13px;
+      }
+
+      .download-button {
+        font-size: 12px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        flex-direction: column;
+      }
+
+      .control-panel {
+        flex: none;
+        width: 100%;
+        min-width: 0;
+        height: auto;
+        max-height: 55%;
+        padding: 9px 11px;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+        overflow-y: auto;
+      }
+
+      .brand {
+        margin-bottom: 7px;
+      }
+
+      .brand h1 {
+        font-size: 19px;
+      }
+
+      .brand p,
+      .section-title {
+        display: none;
+      }
+
+      .main-button {
+        min-height: 38px;
+        font-size: 12px;
+      }
+
+      .auto-button {
+        min-height: 34px;
+        margin-top: 6px;
+        font-size: 11px;
+      }
+
+      .tools {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 3px 10px;
+        margin-top: 7px;
+        padding: 7px;
+      }
+
+      .tools-title {
+        grid-column: 1 / -1;
+        margin-bottom: 2px;
+        font-size: 11px;
+      }
+
+      .slider-row {
+        margin: 2px 0;
+        font-size: 10px;
+      }
+
+      .status {
+        display: none;
+      }
+
+      .download-button {
+        min-height: 34px;
+        margin-top: 6px;
+        padding: 5px;
+        font-size: 11px;
+      }
+
+      .preview-area {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        flex: 1 1 auto;
+        height: auto;
+        min-height: 0;
+        gap: 7px;
+        padding: 7px;
+      }
+
+      .preview-label {
+        top: 7px;
+        left: 7px;
+        padding: 5px 8px;
+        font-size: 10px;
+      }
+
+      .empty {
+        padding: 8px;
+        font-size: 11px;
+      }
+    }
+
+    /* ===== HTML5 semantic element resets ===== */
+    figure {
+      margin: 0;
+    }
+
+    .brand h1,
+    .section-title,
+    .tools-title {
+      font-family: inherit;
+    }
+
+    .value {
+      font-weight: bold;
+    }
+
+    .tools-title {
+      margin-top: 0;
+    }
+
+    .status {
+      margin-bottom: 0;
+    }
+
+    button.image-area {
+      margin: 0;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-weight: normal;
+    }
+
+    button.image-area:active {
+      transform: none;
+    }
+
+    .empty {
+      display: block;
+    }
+
+    :focus-visible {
+      outline: 2px solid #75adff;
+      outline-offset: 2px;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+
+    <aside class="control-panel" aria-label="แผงควบคุม">
+      <header class="brand">
+        <h1>Saran<span>Pro</span></h1>
+        <p>Professional Image Enhancement</p>
+      </header>
+
+      <h2 class="section-title">เครื่องมือปรับแต่งภาพ</h2>
+
+      <button id="sharpenButton" class="main-button" type="button" disabled>
+        ⚡ ปรับภาพให้คมแบบ Pro
+      </button>
+
+      <button id="autoButton" class="auto-button" type="button">
+        ✨ Wink Auto Enhance
+      </button>
+
+      <section class="tools" aria-labelledby="toolsTitle">
+        <h3 id="toolsTitle" class="tools-title">Saran Pro Controls</h3>
+
+        <label class="slider-row">
+          <span>ผิวเนียน <output id="smoothValue" class="value" for="smoothRange">25</output></span>
+          <input id="smoothRange" name="smooth" type="range" min="0" max="100" step="1" value="25">
+        </label>
+
+        <label class="slider-row">
+          <span>เพิ่มแสง <output id="lightValue" class="value" for="lightRange">20</output></span>
+          <input id="lightRange" name="light" type="range" min="0" max="100" step="1" value="20">
+        </label>
+
+        <label class="slider-row">
+          <span>สีสัน <output id="colorValue" class="value" for="colorRange">25</output></span>
+          <input id="colorRange" name="color" type="range" min="0" max="100" step="1" value="25">
+        </label>
+
+        <label class="slider-row">
+          <span>ความคม <output id="sharpValue" class="value" for="sharpRange">40</output></span>
+          <input id="sharpRange" name="sharp" type="range" min="0" max="100" step="1" value="40">
+        </label>
+      </section>
+
+      <p id="statusMessage" class="status" role="status" aria-live="polite">
+        แตะช่อง Before เพื่อเลือกรูปภาพจาก Gallery
+      </p>
+
+      <button id="downloadButton" class="download-button" type="button">
+        ⬇ ดาวน์โหลดรูปภาพ
+      </button>
+    </aside>
+
+    <section class="preview-area" aria-label="ตัวอย่างภาพ">
+
+      <figure class="preview-box">
+        <figcaption class="preview-label">Before</figcaption>
+
+        <button id="beforeArea" class="image-area" type="button" aria-label="เลือกรูปภาพจากแกลเลอรี">
+          <span id="beforeEmpty" class="empty">
+            แตะที่นี่เพื่อเลือกรูปภาพ<br>
+            จากแกลเลอรีของแท็บเล็ต
+          </span>
+
+          <img id="beforeImage" alt="ภาพต้นฉบับ" decoding="async">
+        </button>
+      </figure>
+
+      <figure class="preview-box">
+        <figcaption class="preview-label">After</figcaption>
+
+        <div class="image-area">
+          <span id="afterEmpty" class="empty">
+            ภาพที่ปรับปรุงแล้ว<br>
+            จะแสดงที่นี่
+          </span>
+
+          <canvas id="afterCanvas" role="img" aria-label="ภาพที่ปรับปรุงแล้ว"></canvas>
+        </div>
+      </figure>
+
+    </section>
+
+    <input id="fileInput" type="file" accept="image/*" hidden aria-label="เลือกไฟล์รูปภาพ">
+  </main>
+
+  <script>
+    "use strict";
+
+    const fileInput = document.getElementById("fileInput");
+    const beforeArea = document.getElementById("beforeArea");
+    const beforeImage = document.getElementById("beforeImage");
+    const beforeEmpty = document.getElementById("beforeEmpty");
+    const afterCanvas = document.getElementById("afterCanvas");
+    const afterEmpty = document.getElementById("afterEmpty");
+
+    const sharpenButton = document.getElementById("sharpenButton");
+    const autoButton = document.getElementById("autoButton");
+    const downloadButton = document.getElementById("downloadButton");
+    const statusMessage = document.getElementById("statusMessage");
+
+    const smoothRange = document.getElementById("smoothRange");
+    const lightRange = document.getElementById("lightRange");
+    const colorRange = document.getElementById("colorRange");
+    const sharpRange = document.getElementById("sharpRange");
+
+    const smoothValue = document.getElementById("smoothValue");
+    const lightValue = document.getElementById("lightValue");
+    const colorValue = document.getElementById("colorValue");
+    const sharpValue = document.getElementById("sharpValue");
+
+    let selectedFile = null;
+    let imageUrl = null;
+    let processedImageReady = false;
+    let downloadsApi = null;
+
+    // บน claude.ai ใช้ระบบดาวน์โหลดของหน้าเว็บ ถ้าเปิดไฟล์ในเครื่องจะใช้ลิงก์ดาวน์โหลดปกติ
+    if (window.claude && typeof window.claude.use === "function") {
+      window.claude.use("downloads").then(function(api) {
+        downloadsApi = api;
+      }).catch(function() {
+        downloadsApi = null;
+      });
+    }
+
+    function openGallery() {
+      fileInput.click();
+    }
+
+    beforeArea.addEventListener("click", openGallery);
+
+    fileInput.addEventListener("change", function() {
+      const file = fileInput.files && fileInput.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      if (!file.type || !file.type.startsWith("image/")) {
+        statusMessage.textContent = "กรุณาเลือกไฟล์รูปภาพเท่านั้น";
+        return;
+      }
+
+      selectedFile = file;
+
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+
+      imageUrl = URL.createObjectURL(file);
+      beforeImage.src = imageUrl;
+
+      beforeImage.classList.add("visible");
+      beforeEmpty.style.display = "none";
+
+      sharpenButton.disabled = false;
+      processedImageReady = false;
+
+      afterCanvas.classList.remove("visible");
+      afterEmpty.style.display = "block";
+      downloadButton.classList.remove("show");
+
+      statusMessage.textContent =
+        "เลือกรูปภาพแล้ว สามารถปรับแต่งได้";
+    });
+
+    const sliders = [
+      [smoothRange, smoothValue],
+      [lightRange, lightValue],
+      [colorRange, colorValue],
+      [sharpRange, sharpValue]
+    ];
+
+    sliders.forEach(function(item) {
+      item[0].addEventListener("input", function() {
+        item[1].textContent = item[0].value;
+      });
+    });
+
+    sharpenButton.addEventListener("click", function() {
+      renderImage();
+    });
+
+    autoButton.addEventListener("click", function() {
+      if (!selectedFile) {
+        statusMessage.textContent = "กรุณาเลือกรูปภาพก่อน";
+        return;
+      }
+
+      smoothRange.value = 30;
+      lightRange.value = 28;
+      colorRange.value = 30;
+      sharpRange.value = 48;
+
+      updateSliderValues();
+      renderImage();
+    });
+
+    function updateSliderValues() {
+      smoothValue.textContent = smoothRange.value;
+      lightValue.textContent = lightRange.value;
+      colorValue.textContent = colorRange.value;
+      sharpValue.textContent = sharpRange.value;
+    }
+
+    function renderImage() {
+      if (!selectedFile) {
+        statusMessage.textContent = "กรุณาเลือกรูปภาพก่อน";
+        return;
+      }
+
+      if (!beforeImage.complete || !beforeImage.naturalWidth) {
+        statusMessage.textContent =
+          "กำลังโหลดรูปภาพ กรุณาลองอีกครั้ง";
+        return;
+      }
+
+      sharpenButton.disabled = true;
+      autoButton.disabled = true;
+      statusMessage.textContent = "กำลังปรับภาพแบบ Saran Pro...";
+
+      window.requestAnimationFrame(function() {
+        try {
+          const sourceWidth = beforeImage.naturalWidth;
+          const sourceHeight = beforeImage.naturalHeight;
+          const maxSize = 2600;
+
+          const scale = Math.min(
+            1.6,
+            maxSize / Math.max(sourceWidth, sourceHeight)
+          );
+
+          afterCanvas.width = Math.max(
+            1,
+            Math.round(sourceWidth * scale)
+          );
+
+          afterCanvas.height = Math.max(
+            1,
+            Math.round(sourceHeight * scale)
+          );
+
+          const ctx = afterCanvas.getContext("2d");
+
+          if (!ctx) {
+            throw new Error("Canvas ไม่พร้อมใช้งาน");
+          }
+
+          const smooth = Number(smoothRange.value);
+          const light = Number(lightRange.value);
+          const color = Number(colorRange.value);
+          const sharp = Number(sharpRange.value);
+
+          const brightness = 100 + light * 0.20;
+          const contrast = 100 + sharp * 0.24;
+          const saturation = 100 + color * 0.50;
+          const blur = smooth * 0.016;
+
+          ctx.clearRect(
+            0,
+            0,
+            afterCanvas.width,
+            afterCanvas.height
+          );
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+
+          ctx.filter =
+            "brightness(" + brightness + "%) " +
+            "contrast(" + contrast + "%) " +
+            "saturate(" + saturation + "%) " +
+            "blur(" + blur + "px)";
+
+          ctx.drawImage(
+            beforeImage,
+            0,
+            0,
+            afterCanvas.width,
+            afterCanvas.height
+          );
+
+          /*
+           * เพิ่มความคมแบบละเอียด
+           */
+          const detailOpacity = Math.min(0.18, sharp / 600);
+
+          if (detailOpacity > 0) {
+            ctx.globalAlpha = detailOpacity;
+            ctx.filter = "contrast(135%) saturate(110%)";
+
+            ctx.drawImage(
+              afterCanvas,
+              -1,
+              0,
+              afterCanvas.width,
+              afterCanvas.height
+            );
+
+            ctx.drawImage(
+              afterCanvas,
+              1,
+              0,
+              afterCanvas.width,
+              afterCanvas.height
+            );
+
+            ctx.globalAlpha = 1;
+          }
+
+          afterCanvas.classList.add("visible");
+          afterEmpty.style.display = "none";
+
+          processedImageReady = true;
+          downloadButton.classList.add("show");
+          statusMessage.textContent =
+            "ปรับภาพเสร็จแล้ว พร้อมดาวน์โหลด";
+        } catch (error) {
+          console.error(error);
+          statusMessage.textContent =
+            "เกิดข้อผิดพลาดในการประมวลผลภาพ";
+        } finally {
+          sharpenButton.disabled = false;
+          autoButton.disabled = false;
+        }
+      });
+    }
+
+    downloadButton.addEventListener("click", function() {
+      if (!processedImageReady) {
+        statusMessage.textContent =
+          "กรุณาปรับภาพก่อนดาวน์โหลด";
+        return;
+      }
+
+      try {
+        const originalName = selectedFile
+          ? selectedFile.name
+          : "image";
+
+        const cleanName = originalName
+          .replace(/\.[^/.]+$/, "")
+          .replace(/[^a-zA-Z0-9ก-๙_-]/g, "_");
+
+        const downloadName =
+          (cleanName || "image") + "_SaranPro.png";
+
+        afterCanvas.toBlob(function(blob) {
+          if (!blob) {
+            statusMessage.textContent =
+              "ดาวน์โหลดไม่สำเร็จ กรุณาลองใหม่";
+            return;
+          }
+
+          if (downloadsApi) {
+            statusMessage.textContent = "กรุณากดยืนยันเพื่อบันทึกรูปภาพ";
+
+            downloadsApi.save({ filename: downloadName, data: blob })
+              .then(function() {
+                statusMessage.textContent = "บันทึกรูปภาพแล้ว";
+              })
+              .catch(function(err) {
+                const code = err && err.code;
+                if (code === "declined") {
+                  statusMessage.textContent = "ยกเลิกการบันทึกรูปภาพ";
+                } else if (code === "rate_limited") {
+                  statusMessage.textContent = "มีหน้าต่างยืนยันเปิดอยู่ กรุณารอสักครู่";
+                } else {
+                  statusMessage.textContent =
+                    "ดาวน์โหลดไม่สำเร็จ กรุณาลองใหม่";
+                }
+              });
+            return;
+          }
+
+          const blobUrl = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+
+          link.download = downloadName;
+          link.href = blobUrl;
+          link.hidden = true;
+
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          setTimeout(function() {
+            URL.revokeObjectURL(blobUrl);
+          }, 1000);
+
+          statusMessage.textContent =
+            "เริ่มดาวน์โหลดรูปภาพแล้ว";
+        }, "image/png");
+      } catch (error) {
+        console.error(error);
+        statusMessage.textContent =
+          "ดาวน์โหลดไม่สำเร็จ กรุณาลองใหม่";
+      }
+    });
+
+    window.addEventListener("beforeunload", function() {
+      if (imageUrl) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    });
+  </script>
+</body>
+</html>
